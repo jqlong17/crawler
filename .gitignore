@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+myenv/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# Output
+output.txt
+
+# Chrome driver
+chromedriver
+
+# IDE specific files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
