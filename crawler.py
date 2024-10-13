@@ -99,7 +99,8 @@ def analyze_website(task_id, url):
     """
     soup = get_webpage_content(url)
     if not soup:
-        return "无法获取网页内容"
+        logging.info(f"任务ID: {task_id} - 无法获取网页内容，跳过AI调用")
+        return None  # 如果未成功获取网页内容，返回None
     structure_info = analyze_webpage_structure(soup)
     prompt = f"分析以下网站结构信息，重点关注如何提取中小学教材版本、年级、学科、学段信息：{json.dumps(structure_info, ensure_ascii=False)}"
     analysis_result = callAI(prompt)
@@ -169,6 +170,14 @@ def scrape_data(task_id, url):
         soup = BeautifulSoup(driver.page_source, 'html.parser')
         extracted_data = extract_information(soup, task_id)
         
+        # 记录网页大小和前10行内容
+        page_source = driver.page_source
+        page_size = len(page_source)
+        first_10_lines = '\n'.join(page_source.split('\n')[:10])
+        logging.info(f"任务ID: {task_id} - 成功抓取网页内容")
+        logging.info(f"任务ID: {task_id} - 网页大小: {page_size} 字节")
+        logging.info(f"任务ID: {task_id} - 网页前10行内容:\n{first_10_lines}")
+        
         # 将提取的数据写入output.txt文件
         with open('output.txt', 'w', encoding='utf-8') as file:
             for stage, subject, version, grade in extracted_data:
@@ -209,9 +218,7 @@ def main():
         
         # 步骤3和4：检查结果并决定是否继续
         if not extracted_data or check_output():
-            reanalysis_result = callAI(f"任务ID: {task_id} - 重新分析爬取结果，提供改进建议")
-            logging.info(f"任务ID: {task_id} - 重新分析结果: {reanalysis_result}")
-            
+            logging.info(f"任务ID: {task_id} - 无法获取网页内容，跳过AI调用")
             print("是否继续爬取？")
             if input("输入'y'继续，或其他键退出: ").strip().lower() != 'y':
                 logging.info(f"任务ID: {task_id} - 用户选择停止爬取")
